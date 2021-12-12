@@ -1,10 +1,11 @@
 # Nondeterminism
-### Associated Repository for "Identifying, Evaluating, and Addressing Nondeterminism in Mask R-CNNs"
-The following lines of code are used to configure embedded randomness within the model structure 
+
+### Allowing embedded randomness within a model strcuture and performing computations on a GPU instead of a CPU introduces a degree of nondeterminism into training results. The code within this repo provides examples of how to train Mask R-CNN Models consecutively, how to collect performance metrics to evaluate nondeterminism, and how to reduce or eliminate nondeterminism. 
 
 
+This repository acts as a code base for the associated manuscript "Identifying, Evaluating, and Addressing Nondeterminism in Mask R-CNNs". (A link to this manuscript will be added when available) Here within, the code used and implemented, the training data, and results collected can be found. 
 
-#### Code required to disable embedded randomness within a model can be found in the training files within this repository or below
+##### Code required to disable embedded randomness within a model can be found in the training files within this repository or below
  * Located at the beginning of training procedure
 ```python
 random.seed(SEED)                               # Configures Python Random Library Seed
