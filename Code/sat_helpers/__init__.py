@@ -14,7 +14,7 @@ from . import visualize
 from . import applications
 
 __all__ = ['analyze', 'data_utils', 'structures', 'visualize', 'applications']
-with open(Path(Path(__file__).parent,'..','setup.py'), 'rb') as f:
+with open(Path(Path(__file__).parent,'..','..','setup.py'), 'rb') as f:
     setup_lines = f.readlines()
 for line in setup_lines:
     line = line.decode('utf-8')

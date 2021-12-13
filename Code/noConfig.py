@@ -28,13 +28,13 @@ from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.structures import BoxMode
 
 #Location of the sat_helper folder
-root = '../'
+root = '' #if the location of sat_helper or the training file is changed, this will need to be adjusted accordingly
 import sys
 if root not in sys.path:
     sys.path.append(root)
 
 #Location of the models
-ocean_images = root + '../../../../ocean/projects/dmr200021p/sprice/tuning/'
+ocean_images = root + '../../../../../ocean/projects/dmr200021p/sprice/tuning/'
 sys.path.append(root)
 
 from sat_helpers import data_utils, visualize, analyze
@@ -47,11 +47,11 @@ from sat_helpers.visualize import display_iset
 #--------------------------------------------------------------
 EXPERIMENT_NAME = 'satellite'                       # Keep as is
 NUM_ITERATIONS = 10000                              # The total number of training iterations
-CHECKPOINT_NUM = 5000                               # This is the number of iterations before a checkpoint is stored
+CHECKPOINT_NUM = 10000                              # This is the number of iterations before a checkpoint is stored
 NUM_MODELS = 10                                     # This is the number of models that will be trained
 OFFSET = 0                                          # This is used if trainings are split into A and B, if A, = 0, if B, = NUM_MODELS
 TEMP_FOLDER = 'batch_temp2'                         # The file that model weights will be stored after training before being analyzed
-OUTPUT_FILE = '../Data/Results/Test.txt'            # This is the file that stores performance scores
+OUTPUT_FILE = '../Data/Results/Test_noConfig.txt'   # This is the file that stores performance scores, change to a more suitable name when running
 LR = 0.01                                           # Learning Rate that is used
 WD = 0.000005                                       # Weight Decay used
 BB = 'ResNet50'                                     # Backbone structure, although not currently configured to work
