@@ -37,14 +37,14 @@ pip install -r requirements.txt
 ```
 
 ## Installing additional requirements not accounted for
-```bash
-[No longer recommending] sudo apt install build-essential
-```
+Without Sudo
 ```bash
 conda install gcc_linux-64 
 ```
+With Sudo:
 ```bash
-[No longer recommending] sudo apt-get install python3.8-dev
+sudo apt install build-essential
+sudo apt-get install python3.8-dev
 ```
 
 ## Installing COCO Python API
