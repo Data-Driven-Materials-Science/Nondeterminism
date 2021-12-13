@@ -14,18 +14,18 @@ conda install -c anaconda git
 
 ## Clone git repository
 ```bash
-git clone https://github.com/Data-Driven-Materials-Science/SALAS
+git clone https://github.com/Data-Driven-Materials-Science/Nondeterminism
 ```
 ```bash
-cd SALAS
+cd Nondeterminism
 ```
 
 ## Setup Virtual Environment
 ```bash
-python3 -m venv salas_env
+python3 -m venv nondeterminism_env
 ```
 ```bash
-source salas_env/bin/activate
+source nondeterminism_env/bin/activate
 ```
 
 ## Install Requirements File
