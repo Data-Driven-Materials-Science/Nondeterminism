@@ -27,33 +27,41 @@ from detectron2.data import (
 from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.structures import BoxMode
 
-root = '../../../'
+#Location of the sat_helper folder
+root = '../'
+import sys
+if root not in sys.path:
+    sys.path.append(root)
+
+#Location of the models
 ocean_images = root + '../../../../ocean/projects/dmr200021p/sprice/tuning/'
 sys.path.append(root)
 
-from ampis import data_utils, visualize, analyze
-from ampis.applications import powder
-from ampis.structures import InstanceSet
-from ampis.visualize import display_iset
+from sat_helpers import data_utils, visualize, analyze
+from sat_helpers.applications import powder
+from sat_helpers.structures import InstanceSet
+from sat_helpers.visualize import display_iset
 
 #CONSTANTS
+#NOTE: System paths will most likely need to be altered to each users environment 
 #--------------------------------------------------------------
-EXPERIMENT_NAME = 'satellite'                       # can be 'particle' or 'satellite'
+EXPERIMENT_NAME = 'satellite'                       # Keep as is
 NUM_ITERATIONS = 10000                              # The total number of training iterations
-CHECKPOINT_NUM = 10000                              # This is the number of iterations before a checkpoint is stored
-NUM_MODELS = 10                                     # This is the number of models that will be trained from scratch
+CHECKPOINT_NUM = 5000                               # This is the number of iterations before a checkpoint is stored
+NUM_MODELS = 10                                     # This is the number of models that will be trained
 OFFSET = 0                                          # This is used if trainings are split into A and B, if A, = 0, if B, = NUM_MODELS
-TEMP_FOLDER = 'batch_temp1'                         # The file that model weights will be stored after training before being analyzed
-OUTPUT_FILE = '../NO_CONFIG_OUTPUT-3.txt'           # This is the file that stores precision scores
+TEMP_FOLDER = 'batch_temp2'                         # The file that model weights will be stored after training before being analyzed
+OUTPUT_FILE = '../Data/Results/Test.txt'            # This is the file that stores performance scores
 LR = 0.01                                           # Learning Rate that is used
 WD = 0.000005                                       # Weight Decay used
 BB = 'ResNet50'                                     # Backbone structure, although not currently configured to work
 SEED = 42                                           # Numerican Value RNG's are set to
-FINAL_MODEL_FOLDER = '../../../../../../../ocean/projects/dmr200021p/sprice/variance/No_Config3/trial1/'
+# FINAL_MODEL_FOLDER needs to be changed to where you would like it to be stored
+FINAL_MODEL_FOLDER = '../../../../../../../ocean/projects/dmr200021p/sprice/variance/REPO_Test/trial1/'
 #--------------------------------------------------------------
 for loop_num in range(NUM_MODELS):
-    json_path_train = Path('..', 'SALAS_Rep', 'satellite_training.json')  # path to training data
-    json_path_val = Path('..', 'SALAS_Rep', 'satellite_validation.json')  # path to training data
+    json_path_train = Path('..', 'Data', 'Training_Data', 'VIA', 'satellite_training.json')  # path to training data
+    json_path_val = Path('..', 'Data', 'Training_Data', 'VIA', 'satellite_validation.json')  # path to training data
     assert json_path_train.is_file(), 'training file not found!'
     assert json_path_val.is_file(), 'validation file not found!'
 
@@ -91,23 +99,22 @@ for loop_num in range(NUM_MODELS):
         visualize.display_ddicts(i, None, dataset_valid, suppress_labels=True)
 
     #MODEL CONFIGS
-    cfg = get_cfg() # initialize cfg object
+    cfg = get_cfg()                         # initialize cfg object
     cfg.merge_from_file(model_zoo.get_config_file('COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'))  # load default parameters for Mask R-CNN
-    cfg.INPUT.MASK_FORMAT = 'polygon'  # masks generated in VGG image annotator are polygons
-    cfg.DATASETS.TRAIN = (dataset_train,)  # dataset used for training model
+    cfg.INPUT.MASK_FORMAT = 'polygon'       # masks generated in VGG image annotator are polygons
+    cfg.DATASETS.TRAIN = (dataset_train,)   # dataset used for training model
     cfg.DATASETS.VALIDATION = (dataset_valid,)
     cfg.DATASETS.TEST = (dataset_train, dataset_valid)  # we will look at the predictions on both sets after training
-    cfg.SOLVER.IMS_PER_BATCH = 1 # number of images per batch (across all machines)
+    cfg.SOLVER.IMS_PER_BATCH = 1            # number of images per batch (across all machines)
     cfg.SOLVER.CHECKPOINT_PERIOD = CHECKPOINT_NUM  # number of iterations after which to save model checkpoints
-    cfg.MODEL.DEVICE='cuda'  # 'cpu' to force model to run on cpu, 'cuda' if you have a compatible gpu
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1 # Since we are training separate models for particles and satellites there is only one class output
+    cfg.MODEL.DEVICE='cuda'                 # 'cpu' to force model to run on cpu, 'cuda' if you have a compatible gpu
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1     # Since we are training separate models for particles and satellites there is only one class output
     cfg.TEST.DETECTIONS_PER_IMAGE = 400 if EXPERIMENT_NAME == 'particle' else 250  # maximum number of instances that can be detected in an image (this is fixed in mask r-cnn)
-    cfg.SOLVER.MAX_ITER = NUM_ITERATIONS  # maximum number of iterations to run during training
-                                # Increasing this may improve the training results, but will take longer to run (especially without a gpu!)
+    cfg.SOLVER.MAX_ITER = NUM_ITERATIONS    # maximum number of iterations to run during training
+                                            # Increasing this may improve the training results, but will take longer to run (especially without a gpu!)
     #-------------------------------------------------
-    #-------------------------------------------------
-    cfg.SOLVER.BASE_LR = LR
-    cfg.SOLVER.WEIGHT_DECAY = WD
+    cfg.SOLVER.BASE_LR = LR                 # Setting the Learning Rate of the model to constant initialized above
+    cfg.SOLVER.WEIGHT_DECAY = WD            # Setting the Weight Decay of the model to constant initialized above
     #-------------------------------------------------
 
     # model weights will be downloaded if they are not present
@@ -124,10 +131,10 @@ for loop_num in range(NUM_MODELS):
 
 
     #MODEL TRAINING
-    trainer = DefaultTrainer(cfg)  # create trainer object from cfg
-    trainer.resume_or_load(resume=False)  # start training from iteration 0
+    trainer = DefaultTrainer(cfg)           # create trainer object from cfg
+    trainer.resume_or_load(resume=False)    # start training from iteration 0
     time1 = datetime.now().time()
-    trainer.train()  # train the model!
+    trainer.train()                         # train the model!
     time2 = datetime.now().time()
 
 
@@ -145,8 +152,8 @@ for loop_num in range(NUM_MODELS):
             print(f'Dataset: {ds}')
             for dd in DatasetCatalog.get(ds):
                 print(f'\tFile: {dd["file_name"]}')
-                img = cv2.imread(dd['file_name'])  # load image
-                outs = predictor(img)  # run inference on image
+                img = cv2.imread(dd['file_name'])   # load image
+                outs = predictor(img)               # run inference on image
                 
                 # format results for visualization and store for later
                 results.append(data_utils.format_outputs(dd['file_name'], ds, outs))
@@ -248,20 +255,21 @@ for loop_num in range(NUM_MODELS):
                 img = skimage.color.gray2rgb(skimage.io.imread(iset.filepath))
                 #display_iset(img, iset=iset_det)
                 counter += 1'''
-        del (average_p[0])[-1]
-        del (average_r[0])[-1]
+        del (average_p[0])[-1] #Removes the last image from scores for reasons specific to this dataset, not required for others
+        del (average_r[0])[-1] #Removes the last image from scores for reasons specific to this dataset, not required for others
         
         iteration_name = ((str(model_checkpoints[-cycle]).split('/'))[-1]).split('_')[-1].split('.pth')[0]
         if iteration_name == 'final':
             print("Ignoring Final Model")
         else:
+            # Stores the loop number, the average precions and recall, as well as the start time and stop time
             return_list = [loop_num+OFFSET, str(sum(average_p[0])/len(average_p[0])), str(sum(average_r[0])/len(average_r[0])), str(time1), str(time2)]
             with open(OUTPUT_FILE, "a") as output:
                 output.write(str(return_list))
             f = open(OUTPUT_FILE, "a")
             f.write(',\n')
             f.close()
-    for model in range(len(model_checkpoints)):
+    for model in range(len(model_checkpoints)): # Moves all model weights to final folder to be stored
         print("Deleting: " + str(model_checkpoints[-model]))
         print('Current File Path')
         print(str(model_checkpoints[-model]))
@@ -269,13 +277,13 @@ for loop_num in range(NUM_MODELS):
         print(FINAL_MODEL_FOLDER + "model" + str(loop_num+OFFSET) + ".pth")
         os.makedirs(Path(FINAL_MODEL_FOLDER), exist_ok=True)
         os.rename(Path(str(model_checkpoints[-model])), Path(FINAL_MODEL_FOLDER + "model" + str(loop_num+OFFSET) + ".pth"))
-    for file in range(len(pickle_folder)):
+    for file in range(len(pickle_folder)): # Deletes all temporory calculations store
         temp = ocean_images + "weights/" + TEMP_FOLDER + "/" + pickle_folder[file]
         print("Deleting: " + temp)
         print(temp)
         os.remove(temp)
+    # Deleting any tempory files that aren't relevant
     print("Removing: " + ocean_images + "weights/" + TEMP_FOLDER  + "/" +"metrics.json")
     os.remove(ocean_images + "weights/" + TEMP_FOLDER  + "/" +"metrics.json")
     print("Removing: " + ocean_images + "weights/" + TEMP_FOLDER  + "/" +"last_checkpoint")
     os.remove(ocean_images + "weights/" + TEMP_FOLDER  + "/" + "last_checkpoint")
-

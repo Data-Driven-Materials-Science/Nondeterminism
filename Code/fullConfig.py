@@ -28,7 +28,7 @@ from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.structures import BoxMode
 
 
-#Location of the SALAS Folder
+#Location of the sat_helper Folder
 root = '../'
 import sys
 if root not in sys.path:
@@ -47,12 +47,12 @@ from sat_helpers.visualize import display_iset
 #NOTE: System paths will most likely need to be altered to each users environment 
 #--------------------------------------------------------------
 EXPERIMENT_NAME = 'satellite'                       # Keep as is
-NUM_ITERATIONS = 100                              # The total number of training iterations
-CHECKPOINT_NUM = 50                               # This is the number of iterations before a checkpoint is stored
-NUM_MODELS = 2                                     # This is the number of models that will be trained
-OFFSET = 50                                         # This is used if trainings are split into A and B, if A, = 0, if B, = NUM_MODELS
+NUM_ITERATIONS = 10000                              # The total number of training iterations
+CHECKPOINT_NUM = 5000                               # This is the number of iterations before a checkpoint is stored
+NUM_MODELS = 10                                      # This is the number of models that will be trained
+OFFSET = 0                                         # This is used if trainings are split into A and B, if A, = 0, if B, = NUM_MODELS
 TEMP_FOLDER = 'batch_temp1'                         # The file that model weights will be stored after training before being analyzed
-OUTPUT_FILE = '../DATA/Results/Test.txt' # This is the file that stores performance scores
+OUTPUT_FILE = '../Data/Results/Test.txt'            # This is the file that stores performance scores
 LR = 0.01                                           # Learning Rate that is used
 WD = 0.000005                                       # Weight Decay used
 BB = 'ResNet50'                                     # Backbone structure, although not currently configured to work
@@ -71,8 +71,8 @@ for loop_num in range(NUM_MODELS):
 
     ##LOADING DATA
 
-    json_path_train = Path('..', 'SALAS_Rep', 'satellite_training.json')  # path to training data
-    json_path_val = Path('..', 'SALAS_Rep', 'satellite_validation.json')  # path to training data
+    json_path_train = Path('..', 'Data', 'Training_Data', 'VIA', 'satellite_training.json')  # path to training data
+    json_path_val = Path('..', 'Data', 'Training_Data', 'VIA', 'satellite_validation.json')  # path to training data
     assert json_path_train.is_file(), 'training file not found!'
     assert json_path_val.is_file(), 'validation file not found!'
 
@@ -279,13 +279,14 @@ for loop_num in range(NUM_MODELS):
         if iteration_name == 'final':
             print("Ignoring Final Model")
         else:
+            # Stores the loop number, the average precions and recall, as well as the start time and stop time
             return_list = [loop_num+OFFSET, str(sum(average_p[0])/len(average_p[0])), str(sum(average_r[0])/len(average_r[0])), str(time1), str(time2)]
             with open(OUTPUT_FILE, "a") as output:
                 output.write(str(return_list))
             f = open(OUTPUT_FILE, "a")
             f.write(',\n')
             f.close()
-    for model in range(len(model_checkpoints)):
+    for model in range(len(model_checkpoints)): # Moves all model weights to final folder to be stored
         print("Deleting: " + str(model_checkpoints[-model]))
         print('Current File Path')
         print(str(model_checkpoints[-model]))
@@ -293,11 +294,12 @@ for loop_num in range(NUM_MODELS):
         print(FINAL_MODEL_FOLDER + "model" + str(loop_num+OFFSET) + ".pth")
         os.makedirs(Path(FINAL_MODEL_FOLDER), exist_ok=True)
         os.rename(Path(str(model_checkpoints[-model])), Path(FINAL_MODEL_FOLDER + "model" + str(loop_num+OFFSET) + ".pth"))
-    for file in range(len(pickle_folder)):
+    for file in range(len(pickle_folder)): # Deletes all temporory calculations store
         temp = ocean_images + "weights/" + TEMP_FOLDER + "/" + pickle_folder[file]
         print("Deleting: " + temp)
         print(temp)
         os.remove(temp)
+    # Deleting any tempory files that aren't relevant
     print("Removing: " + ocean_images + "weights/" + TEMP_FOLDER  + "/" +"metrics.json")
     os.remove(ocean_images + "weights/" + TEMP_FOLDER  + "/" +"metrics.json")
     print("Removing: " + ocean_images + "weights/" + TEMP_FOLDER  + "/" +"last_checkpoint")
