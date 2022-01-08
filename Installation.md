@@ -28,7 +28,22 @@ python3 -m venv nondeterminism_env
 source nondeterminism_env/bin/activate
 ```
 
-## Install Requirements File
+## Installing Environment Requirements
+With Module:
+```bash
+module load gcc/10.2.0
+```
+With Sudo:
+```bash
+sudo apt install build-essential
+sudo apt-get install python3.8-dev
+```
+Without Either:
+```bash
+conda install gcc_linux-64 
+```
+
+## Install Requirement Files
 ```bash
 pip install wheel
 ```
@@ -36,16 +51,6 @@ pip install wheel
 pip install -r requirements.txt
 ```
 
-## Installing additional requirements not accounted for
-Without Sudo
-```bash
-conda install gcc_linux-64 
-```
-With Sudo:
-```bash
-sudo apt install build-essential
-sudo apt-get install python3.8-dev
-```
 
 ## Installing COCO Python API
 ```bash
@@ -59,18 +64,9 @@ pip install git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAP
 
 ## Installing PyTorch and TorchVision
 ```bash
-pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
-```
-
-### Sometimes, the above doesn’t work. If you recieve the error "[Errno 28] No space left on device", try the following
-```bash
 TMPDIR=/var/tmp pip install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio==0.8.1 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
 ```
-
 ## Installing Requirements
-```bash
-python -m pip install -U scikit-image
-```
 ```bash
 pip install seaborn
 ```
@@ -82,15 +78,11 @@ python -m pip install -U scikit-image
 ```
 ## Installing Detectron2
 ```bash
-python -m pip install detectron2 -f \ https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.8/index.html
-```
-
-### Sometimes, the above doesn’t work so if that is the case, try the following
-```bash
 python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 ```
-### If you experiece other issues, they can be solved [here](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md#common-installation-issues)
-### Installing AMPIS
+If you experiece other issues, they can be solved [here](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md#common-installation-issues)
+
+## Installing AMPIS
 ```bash
 pip install -e .
 ```
