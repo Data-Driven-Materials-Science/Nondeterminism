@@ -1,5 +1,7 @@
 # Nondeterminism
 
+Note: Installation Guide fixed as of January 8th, 2021.
+
 Allowing embedded randomness within a model strcuture and performing computations on a GPU instead of a CPU introduces a degree of nondeterminism into training results. The code within this repo provides examples of how to train Mask R-CNN Models consecutively, how to collect performance metrics to evaluate nondeterminism, and how to reduce or eliminate nondeterminism. 
 
 
